@@ -48,7 +48,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     let gridSize = GameConstants.gridSize
     var gridWidth = 12
     var gridHeight = 8
-    
+
+    // Safe area insets (passed from SwiftUI)
+    var safeAreaInsets: UIEdgeInsets = .zero
+
     // MARK: - Scene Setup
     override func didMove(to view: SKView) {
         backgroundColor = SteampunkColors.background
@@ -255,7 +258,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     private func setupToolbox() {
         toolboxNode = SKNode()
-        toolboxNode.position = CGPoint(x: 10, y: size.height/2)
+        // Account for safe area (Dynamic Island / notch in landscape)
+        let safeAreaLeft = max(safeAreaInsets.left, 50)  // Minimum 50pt for notch devices
+        toolboxNode.position = CGPoint(x: safeAreaLeft + 40, y: size.height/2)
         uiLayer.addChild(toolboxNode)
         
         // Category tabs

@@ -42,99 +42,116 @@ enum GameMode {
 // MARK: - Main Menu
 struct MainMenuView: View {
     let onPlay: (GameMode) -> Void
-    
-    @State private var gearRotation: Double = 0
-    
+
     var body: some View {
-        ZStack {
-            // Background
-            Color(red: 0.12, green: 0.10, blue: 0.15)
-                .ignoresSafeArea()
-            
-            // Decorative gears
-            GeometryReader { geo in
-                ForEach(0..<5) { i in
-                    GearShape()
-                        .fill(Color(red: 0.71, green: 0.60, blue: 0.35).opacity(0.2))
-                        .frame(width: 150, height: 150)
-                        .rotationEffect(.degrees(gearRotation * (i % 2 == 0 ? 1 : -1)))
-                        .position(gearPositions(for: i, in: geo.size))
-                }
-            }
-            
-            VStack(spacing: 30) {
-                // Title
-                VStack(spacing: 8) {
-                    Text("⚙️ DOOHICKEYS ⚙️")
-                        .font(.system(size: 48, weight: .black, design: .rounded))
-                        .foregroundStyle(
-                            LinearGradient(
-                                colors: [
-                                    Color(red: 0.85, green: 0.75, blue: 0.50),
-                                    Color(red: 0.71, green: 0.60, blue: 0.35),
-                                    Color(red: 0.72, green: 0.45, blue: 0.32)
-                                ],
-                                startPoint: .top,
-                                endPoint: .bottom
+        GeometryReader { geometry in
+            let isLandscape = geometry.size.width > geometry.size.height
+
+            ZStack {
+                // Background
+                Color(red: 0.12, green: 0.10, blue: 0.15)
+                    .ignoresSafeArea()
+
+                if isLandscape {
+                    // LANDSCAPE: Side by side layout
+                    HStack(spacing: 30) {
+                        // Left: Title and mascot
+                        VStack(spacing: 8) {
+                            Text("⚙️ DOOHICKEYS ⚙️")
+                                .font(.system(size: 24, weight: .black, design: .rounded))
+                                .foregroundStyle(
+                                    LinearGradient(
+                                        colors: [
+                                            Color(red: 0.85, green: 0.75, blue: 0.50),
+                                            Color(red: 0.71, green: 0.60, blue: 0.35)
+                                        ],
+                                        startPoint: .top,
+                                        endPoint: .bottom
+                                    )
+                                )
+                                .minimumScaleFactor(0.6)
+
+                            Text("Build Crazy Contraptions!")
+                                .font(.system(size: 12, weight: .medium))
+                                .foregroundColor(Color(red: 0.72, green: 0.45, blue: 0.32))
+
+                            KameraManView()
+                                .scaleEffect(0.65)
+                                .frame(height: 100)
+
+                            Text("A Steampunk Puzzle Builder")
+                                .font(.system(size: 10))
+                                .foregroundColor(.gray)
+                        }
+                        .frame(maxWidth: .infinity)
+
+                        // Right: Menu buttons
+                        VStack(spacing: 10) {
+                            MenuButton(title: "🔧 SANDBOX", subtitle: "Build freely!") {
+                                onPlay(.sandbox)
+                            }
+
+                            MenuButton(title: "🎯 CAMPAIGN", subtitle: "50+ Puzzles") {
+                                onPlay(.campaign)
+                            }
+
+                            MenuButton(title: "⏱️ CHALLENGE", subtitle: "Daily puzzles") {
+                                onPlay(.challenge)
+                            }
+                        }
+                        .frame(maxWidth: .infinity)
+                    }
+                    .padding(.horizontal, max(geometry.safeAreaInsets.leading, 20) + 10)
+                    .padding(.vertical, 15)
+
+                } else {
+                    // PORTRAIT: Stacked layout
+                    VStack(spacing: 20) {
+                        Text("⚙️ DOOHICKEYS ⚙️")
+                            .font(.system(size: 36, weight: .black, design: .rounded))
+                            .foregroundStyle(
+                                LinearGradient(
+                                    colors: [
+                                        Color(red: 0.85, green: 0.75, blue: 0.50),
+                                        Color(red: 0.71, green: 0.60, blue: 0.35)
+                                    ],
+                                    startPoint: .top,
+                                    endPoint: .bottom
+                                )
                             )
-                        )
-                        .shadow(color: .black.opacity(0.5), radius: 4, x: 2, y: 2)
-                    
-                    Text("Build Crazy Contraptions!")
-                        .font(.system(size: 20, weight: .medium, design: .rounded))
-                        .foregroundColor(Color(red: 0.72, green: 0.45, blue: 0.32))
+
+                        Text("Build Crazy Contraptions!")
+                            .font(.system(size: 16, weight: .medium))
+                            .foregroundColor(Color(red: 0.72, green: 0.45, blue: 0.32))
+
+                        KameraManView()
+                            .frame(height: 120)
+
+                        VStack(spacing: 12) {
+                            MenuButton(title: "🔧 SANDBOX", subtitle: "Build freely!") {
+                                onPlay(.sandbox)
+                            }
+
+                            MenuButton(title: "🎯 CAMPAIGN", subtitle: "50+ Puzzles") {
+                                onPlay(.campaign)
+                            }
+
+                            MenuButton(title: "⏱️ CHALLENGE", subtitle: "Daily puzzles") {
+                                onPlay(.challenge)
+                            }
+                        }
+                        .padding(.horizontal, 30)
+
+                        Text("A Steampunk Puzzle Builder")
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                    }
+                    .padding(.top, geometry.safeAreaInsets.top + 20)
+                    .padding(.bottom, geometry.safeAreaInsets.bottom + 20)
                 }
-                .padding(.top, 60)
-                
-                Spacer()
-                
-                // Kamera-Man mascot
-                KameraManView()
-                    .frame(width: 140, height: 160)
-                
-                Spacer()
-                
-                // Menu buttons
-                VStack(spacing: 16) {
-                    MenuButton(title: "🔧 SANDBOX", subtitle: "Build freely!") {
-                        onPlay(.sandbox)
-                    }
-                    
-                    MenuButton(title: "🎯 CAMPAIGN", subtitle: "50+ Puzzles") {
-                        onPlay(.campaign)
-                    }
-                    
-                    MenuButton(title: "⏱️ CHALLENGE", subtitle: "Daily puzzles") {
-                        onPlay(.challenge)
-                    }
-                }
-                .padding(.horizontal, 40)
-                
-                Spacer()
-                
-                // Footer
-                Text("A Steampunk Puzzle Builder")
-                    .font(.caption)
-                    .foregroundColor(.gray)
-                    .padding(.bottom, 30)
             }
         }
-        .onAppear {
-            withAnimation(.linear(duration: 20).repeatForever(autoreverses: false)) {
-                gearRotation = 360
-            }
-        }
-    }
-    
-    func gearPositions(for index: Int, in size: CGSize) -> CGPoint {
-        let positions: [CGPoint] = [
-            CGPoint(x: 50, y: 100),
-            CGPoint(x: size.width - 50, y: 150),
-            CGPoint(x: 80, y: size.height - 200),
-            CGPoint(x: size.width - 80, y: size.height - 150),
-            CGPoint(x: size.width / 2, y: size.height - 50)
-        ]
-        return positions[index]
+        .ignoresSafeArea()
     }
 }
 
@@ -481,32 +498,42 @@ struct Triangle: Shape {
 struct GameContainerView: View {
     let mode: GameMode
     let onExit: () -> Void
-    
+
     var body: some View {
-        ZStack {
-            SpriteView(scene: createScene())
-                .ignoresSafeArea()
-            
-            // Exit button overlay
-            VStack {
-                HStack {
-                    Button(action: onExit) {
-                        Image(systemName: "xmark.circle.fill")
-                            .font(.title)
-                            .foregroundColor(Color(red: 0.71, green: 0.60, blue: 0.35))
-                            .padding()
+        GeometryReader { geometry in
+            ZStack {
+                SpriteView(scene: createScene(safeArea: geometry.safeAreaInsets))
+                    .ignoresSafeArea()
+
+                // Exit button overlay - positioned in safe area
+                VStack {
+                    HStack {
+                        Button(action: onExit) {
+                            Image(systemName: "xmark.circle.fill")
+                                .font(.title)
+                                .foregroundColor(Color(red: 0.71, green: 0.60, blue: 0.35))
+                        }
+                        .padding(.leading, max(geometry.safeAreaInsets.leading, 10) + 10)
+                        .padding(.top, max(geometry.safeAreaInsets.top, 10) + 5)
+                        Spacer()
                     }
                     Spacer()
                 }
-                Spacer()
             }
         }
+        .ignoresSafeArea()
     }
-    
-    func createScene() -> GameScene {
+
+    func createScene(safeArea: EdgeInsets) -> GameScene {
         let scene = GameScene()
         scene.size = UIScreen.main.bounds.size
         scene.scaleMode = .aspectFill
+        scene.safeAreaInsets = UIEdgeInsets(
+            top: safeArea.top,
+            left: safeArea.leading,
+            bottom: safeArea.bottom,
+            right: safeArea.trailing
+        )
         return scene
     }
 }
